@@ -1,113 +1,63 @@
-import "@/style/main.css";
+var canvas = document.getElementById("myCanvas") as HTMLCanvasElement;
+var ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-const particules = [
-    {
-        x: getRandom(10, 1600),	// Position en X.
-        y: getRandom(10, 800),	// Position en Y.
-        vx: getRandom(10, 800),	// Vitesse sur l’axe X.
-        vy: getRandom(10, 800)	// Vitesse sur l’axe Y.
-    },
-    {
-        x: getRandom(10, 1600),	// Position en X.
-        y: getRandom(10, 800),	// Position en Y.
-        vx: getRandom(10, 800),	// Vitesse sur l’axe X.
-        vy: getRandom(10, 800)	// Vitesse sur l’axe Y.
-    },
-    {
-        x: getRandom(10, 1600),	// Position en X.
-        y: getRandom(10, 800),	// Position en Y.
-        vx: getRandom(10, 800),	// Vitesse sur l’axe X.
-        vy: getRandom(10, 800)	// Vitesse sur l’axe Y.
-    },
-    {
-        x: getRandom(10, 1600),	// Position en X.
-        y: getRandom(10, 800),	// Position en Y.
-        vx: getRandom(10, 800),	// Vitesse sur l’axe X.
-        vy: getRandom(10, 800)	// Vitesse sur l’axe Y.
-    },
-    {
-        x: getRandom(10, 1600),	// Position en X.
-        y: getRandom(10, 800),	// Position en Y.
-        vx: getRandom(10, 800),	// Vitesse sur l’axe X.
-        vy: getRandom(10, 800)	// Vitesse sur l’axe Y.
-    },
-    {
-        x: getRandom(10, 1600),	// Position en X.
-        y: getRandom(10, 800),	// Position en Y.
-        vx: getRandom(10, 800),	// Vitesse sur l’axe X.
-        vy: getRandom(10, 800)	// Vitesse sur l’axe Y.
-    },
-    {
-        x: getRandom(10, 1600),	// Position en X.
-        y: getRandom(10, 800),	// Position en Y.
-        vx: getRandom(10, 800),	// Vitesse sur l’axe X.
-        vy: getRandom(10, 800)	// Vitesse sur l’axe Y.
-    },
-    {
-        x: getRandom(10, 1600),	// Position en X.
-        y: getRandom(10, 800),	// Position en Y.
-        vx: getRandom(10, 800),	// Vitesse sur l’axe X.
-        vy: getRandom(10, 800)	// Vitesse sur l’axe Y.
-    },
-    {
-        x: getRandom(10, 1600),	// Position en X.
-        y: getRandom(10, 800),	// Position en Y.
-        vx: getRandom(10, 800),	// Vitesse sur l’axe X.
-        vy: getRandom(10, 800)	// Vitesse sur l’axe Y.
-    },
-    {
-        x: getRandom(10, 1600),	// Position en X.
-        y: getRandom(10, 800),	// Position en Y.
-        vx: getRandom(10, 800),	// Vitesse sur l’axe X.
-        vy: getRandom(10, 800)	// Vitesse sur l’axe Y.
+var particles = [] as any;
+
+function initializeParticles() {
+    for (var i = 0; i < 100; i++) {
+        var x = Math.random() * canvas.width;
+        var y = Math.random() * canvas.height;
+        var radius = Math.random() * 5 + 2; // Random size between 2 and 7
+        var color = getRandomColor();
+
+        var speedX = (Math.random() - 0.5) * 20; // Random horizontal speed
+        var speedY = (Math.random() - 0.5) * 20; // Random vertical speed
+
+        particles.push({ x: x, y: y, radius: radius, color: color, speedX: speedX, speedY: speedY });
     }
-]
-
-const myCanvas = document.getElementById("myCanvas") as HTMLCanvasElement;
-const ctx = myCanvas?.getContext("2d");
-const W = window.innerWidth;
-const H = window.innerHeight;
-let x = 0;
-let y = 0;
-
-function initialise(context: CanvasRenderingContext2D) {
-    context.canvas.width = W;
-    context.canvas.height = H;
 }
 
-function afficherRectangle(context: CanvasRenderingContext2D) {
-    context.fillStyle = "red"
-    context.fillRect(50, 50, W / 2, H / 2);
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
 }
 
-function afficherLigne(context: CanvasRenderingContext2D) {
-    context.clearRect(0, 0, W, H);
+function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    x += 3;
-    y += 2;
-    particules.forEach(el => {
+    for (var i = 0; i < particles.length; i++) {
+        var particle = particles[i];
 
-        context.lineWidth = 15 // changer l'épaisseur du trait
+        // Update particle position
+        particle.x += particle.speedX;
+        particle.y += particle.speedY;
 
-        context.beginPath();
-        context.moveTo(el.x + x, el.y + y);
-        context.lineTo(el.x + el.vx, el.y + el.vy);
-        context.strokeStyle = "red";
-        context.stroke();
+        // Bounce off the edges
+        if (particle.x - particle.radius < 0 || particle.x + particle.radius > canvas.width) {
+            particle.speedX = -particle.speedX;
+        }
 
-        console.log(el);
+        if (particle.y - particle.radius < 0 || particle.y + particle.radius > canvas.height) {
+            particle.speedY = -particle.speedY;
+        }
 
+        // Draw the particle
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+        ctx.fillStyle = particle.color;
+        ctx.fill();
+    }
 
-    });
-    window.requestAnimationFrame(() => afficherLigne(context));
+    // Repeat the animation
+    requestAnimationFrame(animateParticles);
 }
 
-if (ctx) {
-    initialise(ctx)
-    //afficherRectangle(ctx)
-    afficherLigne(ctx)
-}
-
-function getRandom(min: any, max: any) {
-    return Math.random() * (max - min) + min;
-}
+// Initialize particles and start the animation
+initializeParticles();
+animateParticles();
